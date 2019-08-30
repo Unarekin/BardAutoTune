@@ -1,0 +1,23 @@
+mat-drawer-container {
+  height: 100%;
+
+  mat-drawer {
+    min-width: 32px;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    // border-right: 1px solid rgba(0,0,0,0.25);
+    box-shadow: 0 5px 5px rgba(0,0,0,.5);
+    border: none;
+  }
+
+  mat-drawer-content {
+    // background: #1d1d1d;
+    /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#1d1d1d+0,000000+100 */
+    background: rgb(29,29,29); /* Old browsers */
+    background: -moz-linear-gradient(top,  rgba(29,29,29,1) 0%, rgba(0,0,0,1) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top,  rgba(29,29,29,1) 0%,rgba(0,0,0,1) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom,  rgba(29,29,29,1) 0%,rgba(0,0,0,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#1d1d1d', endColorstr='#000000',GradientType=0 ); /* IE6-9 */
+  }
+}

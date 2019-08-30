@@ -1,0 +1,117 @@
+$menu-width: 200px;
+
+nav {
+  width: $menu-width;
+  height: 100%;
+
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background-color: #424242;
+  box-shadow: 2px 0 2px rgba(0,0,0,0.5);
+
+
+  mat-toolbar {
+    height: 128px;
+    background-color: #535353;
+    // margin-block-start: 0;
+    // margin-block-end: 0;
+    // margin-inline-start: 0;
+    // margin-inline-end: 0;
+    // padding-block-start: 0;
+    // padding-block-end: 0;
+    // padding-inline-start: 0;
+    // padding-inline-end: 0;
+
+    margin: 0;
+    color: #fafafa;
+  }
+
+  .logo {
+    // width: 100%;
+    // height: 100%;
+    height: 128px;
+    width: 100%;
+    // position: absolute;
+    // top: 0;
+    // right: 0;
+    // left: 0;
+    // border: 1px solid red;
+    background-image: url(/assets/images/BardConceptArtTransparentFade.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: right bottom;
+    font-family: jupiter_proregular;
+    text-align: center;
+
+    color: #ffff98;
+    // background: #912C22;
+    // text-shadow: 0 0 10px #644a11;
+    text-shadow: 0 0 10px #fff;
+  }
+  mat-nav-list {
+    width: $menu-width;
+    overflow: auto;
+
+    h3 {
+      color: #e0e0e0;
+    }
+
+    mat-list-item.active {
+    color: red;
+    }
+  }
+
+  footer {
+    // position: fixed;
+    // bottom: 0;
+    // left: 0;
+    width: $menu-width;
+    color: #e0e0e0;
+  }
+
+  mat-list-item {
+
+    font-size: 12px;
+
+    h4 {
+      color: #e0e0e0;
+    }
+
+    p {
+      color: #757575;
+    }
+
+    fa-icon {
+      color: #e0e0e0;
+    }
+  }
+
+  mat-divider {
+    background-color: rgba(0,0,0,.5);
+  }
+
+}
+
+.playlist::-webkit-scrollbar-track
+{
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  border-radius: 10px;
+  // background-color: red;
+}
+
+.playlist::-webkit-scrollbar
+{
+  width: 12px;
+  background-color: rgba(0,0,0,.25);
+}
+
+.playlist::-webkit-scrollbar-thumb
+{
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+  background-color: rgba(0,0,0,0.5);
+  height: 24px;
+}
+

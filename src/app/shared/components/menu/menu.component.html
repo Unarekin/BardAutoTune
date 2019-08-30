@@ -1,0 +1,50 @@
+<nav fxLayout="column" fxLayoutAlign="start start">
+  <mat-toolbar>
+    <div class="logo" fxLayout="column" fxLayoutAlign="center center">
+      Bard<br>
+      Auto<br>
+      Tune<br>
+    </div>
+  </mat-toolbar>
+  <mat-divider></mat-divider>
+  <mat-nav-list>
+    <mat-list-item (click)="navigateTo('')">
+      <fa-icon [icon]="Icons.home" mat-list-icon></fa-icon>
+      <h4 matLine>Home</h4>
+    </mat-list-item>
+    <mat-list-item (click)="navigateTo('browse')">
+      <fa-icon [icon]="Icons.browse" mat-list-icon></fa-icon>
+      <h4 matLine>Browse Songs</h4>
+    </mat-list-item>
+    <mat-list-item (click)="navigateTo('freestyle')">
+      <fa-icon [icon]="Icons.freestyle" mat-list-icon></fa-icon>
+      <h4 matLine>Freestyle Mode</h4>
+    </mat-list-item>
+    <!-- <mat-divider></mat-divider> -->
+    <h3 mat-subheader>Playlists</h3>
+    <mat-divider></mat-divider>
+  </mat-nav-list>
+  <mat-nav-list fxFlex class="playlist">
+    <mat-list-item *ngFor="let playlist of Playlists" (click)="navigateTo('playlist', playlist._id)">
+      <fa-icon [icon]="Icons.playlist" mat-list-icon></fa-icon>
+      <h4 matLine>{{playlist.Name}}</h4>
+      <p matLine>{{playlist.Songs.length}} songs</p>
+    </mat-list-item>
+  <!--   <a mat-list-item *ngFor="let playlist of Playlists" [routerLink]="['/playlist/', playlist._id]" [routerLinkActive]="active">
+      <fa-icon [icon]="Icons.playlist" mat-list-icon></fa-icon>
+      <h4 mat-line>
+        <a routerLink="/playlist">{{playlist.Name}}</a>
+      </h4>
+      <p mat-line>{{playlist.Songs.length}} songs</p>
+    </a> -->
+  </mat-nav-list>
+  <footer>
+    <mat-divider></mat-divider>
+    <mat-nav-list>
+      <mat-list-item (click)="navigateTo('playlist', 'add')">
+        <fa-icon [icon]="Icons.add" mat-list-icon></fa-icon>
+        <h4 matLine>New Playlist</h4>
+      </mat-list-item>
+    </mat-nav-list>
+  </footer>
+</nav>
