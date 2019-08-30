@@ -3,7 +3,7 @@ import { Midi } from '@tonejs/midi';
 import * as path from 'path';
 import * as url from 'url';
 import * as fs from 'fs';
-
+import * as mkdirp from 'mkdirp';
 
 import {
   Song,
@@ -12,6 +12,13 @@ import {
   Instrument
 } from './src/app/interfaces/song.interface';
 
+
+
+// Ensure songs directory is created.
+mkdirp('./songs', (err) => {
+  if (err)
+    console.error(err);
+});
 
 let win, serve;
 const args = process.argv.slice(1);
@@ -125,8 +132,9 @@ ipcMain.on('song', (event: any, uuid: string, file: string) => {
       // event.reply(`reply-${uuid}`, 'success', data);
       let parsed = new Midi(data)
       // Coerce @tonejs/midi formatted midi into our internal interface
+      // console.log("Parsed: ", parsed);
       let midi: Song = {
-        Name: parsed.header.name,
+        Name: ((!parsed.header.name || parsed.header.name == 'untitled') ? path.basename(file, path.extname(file)) : parsed.header.name),
         Duration: parsed.durationTicks,
         Tracks: parsed.tracks.map((track: any) => {
           return {
