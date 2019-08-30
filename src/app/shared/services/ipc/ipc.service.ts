@@ -1,15 +1,27 @@
+import { EventEmitter } from 'events';
 import { Injectable } from '@angular/core';
 import { ipcRenderer } from 'electron';
+import { Song } from '../../../interfaces';
 
 @Injectable({
   providedIn: 'root'
 })
-export class IPCService {
+export class IPCService extends EventEmitter {
   private promiseReplies: any = {};
 
   constructor() {
+    super()
     this.Send = this.Send.bind(this);
     this.GenerateId = this.GenerateId.bind(this);
+
+    // Some IPC hooks.
+    ipcRenderer.on('song-discovered', (event, song: Song) => {
+      this.emit('song-discovered', song);
+    });
+
+    ipcRenderer.on('song-error', (event, error) => {
+      this.emit('song-error', error);
+    });
   }
 
   public Send(channel: string, ...args): Promise<any[]> {
@@ -27,11 +39,9 @@ export class IPCService {
 
         delete this.promiseReplies[uuid];
       });
-
-
-      this.promiseReplies[uuid] = promise;
     });
 
+    this.promiseReplies[uuid] = promise;
     ipcRenderer.send(channel, uuid, ...args);
 
 

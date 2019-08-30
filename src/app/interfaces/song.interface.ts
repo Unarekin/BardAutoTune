@@ -1,4 +1,14 @@
+export interface Playlist {
+  Name: string,
+  Created: number,
+  Description: string,
+  Songs: Song[]
+};
+
 export interface Song {
+  _id: string,
+  _rev: string,
+  Path: string,
   Name: string,
   Duration: number,
   Tracks: Track[]

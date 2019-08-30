@@ -1,9 +1,13 @@
 import { app, BrowserWindow, screen, session, ipcMain } from 'electron';
 import { Midi } from '@tonejs/midi';
+import getPath from 'platform-folders';
+
 import * as path from 'path';
 import * as url from 'url';
 import * as fs from 'fs';
 import * as mkdirp from 'mkdirp';
+import * as readdir from 'readdir-enhanced';
+
 
 import {
   Song,
@@ -104,65 +108,91 @@ try {
 }
 
 
-ipcMain.on('song-list', (event, uuid, ...args) => {
-  // Pull uuid from front of args array.
-  // console.log("ID: ", uuid);
-  // console.log("Args: ", args);
-  // let uuid = args.shift();
+function loadSong(dir: string): Promise<Song> {
+  return new Promise((resolve, reject) => {
+    fs.readFile(path.resolve(dir), (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        let parsed = new Midi(data)
+        // Coerce @tonejs/midi formatted midi into our internal interface
 
-  fs.readdir('./songs', (err, files) => {
-    if (err) {
+        // _id and _rev are handled by the renderer process, not here.
+        // They originate from the PoucHDB instance, but are included
+        // on the interface for type checking.
+        let midi: Song = {
+          _id: '',
+          _rev: '',
+          Name: parsed.header.name,
+          Path: path.resolve(dir),
+          Duration: parsed.durationTicks,
+          Tracks: parsed.tracks.map((track: any) => {
+            return {
+              Name: track.name,
+              Channel: track.channel,
+              Notes: track.notes.map((note: any) => {
+                return {
+                  Midi: note.midi,
+                  Time: note.time,
+                  Ticks: note.ticks,
+                  Name: note.name,
+                  Pitch: note.pitch,
+                  Octave: note.octave,
+                  Velocity: note.velocity,
+                  Duration: note.duration
+                }
+              }),
+              Instrument: {
+                Number: track.instrument.number,
+                Family: track.instrument.family,
+                Name: track.instrument.name,
+                Percussion: track.instrument.percussion
+              }
+            }
+          })
+        };
+
+        resolve(midi);
+      }
+    });
+  })
+}
+
+ipcMain.on('song-scan', (event, uuid: string, dir: string, subdirs: boolean = false) => {
+
+  let actualDir: string = path.resolve(dir);
+  if (dir.substr(0,7).toLowerCase() == 'special') {
+    // Special folder.  Music, Downloads, Documents, etc.
+    actualDir = app.getPath(dir.substr(8));
+  }
+
+  readdir.stream(actualDir, {deep: subdirs, filter: '*.mid', basePath: actualDir})
+    .on('file', (file: string) => {
+      //ipcMain.emit('song-discovered')
+      loadSong(path.resolve(path.join(dir, file)))
+        .then((song: Song) => {
+          event.reply('song-discovered', song);
+        })
+        .catch((err) => {
+          console.error(err);
+          event.reply('song-error', err);
+        });
+    })
+    .on('end', () => {
+      event.reply(`reply-${uuid}`, 'success', null);
+    })
+    .on('error', (err) => {
       console.error(err);
       event.reply(`reply-${uuid}`, 'error', err);
-    } else {
-      // console.log(files);
-      // console.log(`Replying: reply-${uuid}, ${args}`);
-      event.reply(`reply-${uuid}`, 'success', files);
-    }
-  });
+    });
 });
 
-
-ipcMain.on('song', (event: any, uuid: string, file: string) => {
-  fs.readFile(path.join("./songs", file), (err, data) => {
-    if (err) {
-      console.error(err);
+ipcMain.on('song-load', (event, uuid: string, dir: string) => {
+  loadSong(dir)
+    .then((song: Song) => {
+      event.reply(`reply-${uuid}`, 'success', song);
+    })
+    .catch((err) => {
       event.reply(`reply-${uuid}`, 'error', err);
-    } else {
-      // event.reply(`reply-${uuid}`, 'success', data);
-      let parsed = new Midi(data)
-      // Coerce @tonejs/midi formatted midi into our internal interface
-      // console.log("Parsed: ", parsed);
-      let midi: Song = {
-        Name: ((!parsed.header.name || parsed.header.name == 'untitled') ? path.basename(file, path.extname(file)) : parsed.header.name),
-        Duration: parsed.durationTicks,
-        Tracks: parsed.tracks.map((track: any) => {
-          return {
-            Name: track.name,
-            Channel: track.channel,
-            Notes: track.notes.map((note: any) => {
-              return {
-                Midi: note.midi,
-                Time: note.time,
-                Ticks: note.ticks,
-                Name: note.name,
-                Pitch: note.pitch,
-                Octave: note.octave,
-                Velocity: note.velocity,
-                Duration: note.duration
-              }
-            }),
-            Instrument: {
-              Number: track.instrument.number,
-              Family: track.instrument.family,
-              Name: track.instrument.name,
-              Percussion: track.instrument.percussion
-            }
-          }
-        })
-      };
-
-      event.reply(`reply-${uuid}`, 'success', midi);
-    }
-  });
-})
+    });
+});
