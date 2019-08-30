@@ -1,86 +1,79 @@
+import { EventEmitter } from 'events';
 import { Injectable } from '@angular/core';
 import { IPCService } from '../ipc/ipc.service';
-import { Song } from '../../../interfaces/song.interface';
+import { DatabaseService } from '../database/database.service';
+import { Song, Playlist, Track, Note } from '../../../interfaces/song.interface';
 
 import * as path from 'path';
 
 
+/**
+ * A service to handle managing songs and playlists.
+ */
 @Injectable({
   providedIn: 'root'
 })
-export class SonglistService {
-  private _songs: any[] = [];
+export class SonglistService extends EventEmitter {
+  constructor(private ipc: IPCService, private db: DatabaseService) {
+    super();
 
-  private listPromise: Promise<string[]> = null;
-  private songPromises: any = {};
+    // Bindings
+    this.FindPlaylist = this.FindPlaylist.bind(this);
+    this.FindSong = this.FindSong.bind(this);
+    this.ListPlaylists = this.ListPlaylists.bind(this);
+    this.ListSongs = this.ListSongs.bind(this);
+    this.LoadPlaylist = this.LoadPlaylist.bind(this);
+    this.LoadSong = this.LoadSong.bind(this);
+    this.RefreshSong = this.RefreshSong.bind(this);
 
-  public get Songs(): any[] {
-    return this._songs;
+    this.ScanPath = this.ScanPath.bind(this);
+    this.SongDiscovered = this.SongDiscovered.bind(this);
+    this.SongError = this.SongError.bind(this);
+
+    // IPC events
+    this.ipc.on('song-discovered', this.SongDiscovered);
+    this.ipc.on('song-error', this.SongError);
   }
 
-  constructor(private ipc: IPCService) {
-    this.Get = this.Get.bind(this);
-    this.List = this.List.bind(this);
-  }
+  /**
+   * Raised when a song is discovered, generally as part of a ScanPath call.
+   */
+  private SongDiscovered(song: Song) { this.emit('song-discovered', song); }
+  /**
+   * Raised when loading a discovered song results in an error.
+   */
+  private SongError(err) { this.emit('song-error', err); }
 
-  public List(force: boolean = false): Promise<string[]> {
-    if (force || this.Songs.length == 0) {
-      if (this.listPromise) {
-        return this.listPromise;
-      }
 
-      this.listPromise = this.ipc.Send('song-list')
-        .then((songs: string[]) => {
-          this._songs = songs;
-          this.listPromise = null;
-          return songs;
-        })
+  /**
+   * Sends a scan request to the back end process.
+   * Resolves once the folder has been scanned completely.
+   * Will emit 'song-found' events when a song is found.
+   */
+  public ScanPath(dir: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.ipc.Send('song-scan', dir)
+        .then(resolve)
+        .catch(reject)
         ;
-
-      // console.log("Promise: ", this.listPromise);
-      return this.listPromise;
-    } else {
-      return Promise.resolve(this.Songs);
-    }
+    });
   }
 
-  public Get(song: string, force: boolean = false): Promise<Song> {
-    let index = this.Songs.findIndex((elem) => elem.Name == song);
-    if (force || index == -1 || !this.Songs[index]) {
-      if (this.songPromises[song]) {
-        return this.songPromises[song];
-      } else {
-        // console.log("Retrieving: ", song);
-        this.songPromises[song] = this.ipc.Send('song', song)
-          .then((item: any) => {
-            // console.log(song, item);
-
-            // if (!item.duration)
-            //   item.Duration = Math.max.apply(Math, item.tracks.map((track) => Math.max.apply(Math, track.notes.map((note) => note.ticks + note.durationTicks))));
-
-            // if (!item.Name)
-            //   item.Name = path.basename(song, path.extname(song));
-
-            // // console.log("Duration: ", item.duration);
-            // item.Duration = item.duration;
-            // item.Tracks = item.tracks;
-
-            // delete item.duration;
-            // delete item.tracks;
-
-            console.log("Song: ", item);
-
-            this.Songs[index] = item;
-            delete this.songPromises[song];
-            return item;
-          })
-          ;
-
-        return this.songPromises[song];
-      }
-    } else {
-      return Promise.resolve(this.Songs[index]);
-    }
-
+  /**
+   * Will force load a song from disk.
+   */
+  public RefreshSong(id: string): Promise<Song> {
+    return this.LoadSong(id)
+    return this.ipc.Send('song-load', dir)
+              .then((args) => {
+                return args[0];
+              });
   }
+
+  public ListSongs(): Promise<Song[]> { return this.db.Fetch('song'); }
+  public ListPlaylists(): Promise<Playlist[]> { return this.db.Fetch('playlist'); }
+  public FindSong(query: any): Promise<Song[]> { return this.db.Query('song', query); }
+  public FindPlaylist(query: any): Promise<Playlist> { return this.db.Query('playlist', query); }
+  public LoadPlaylist(id: string): Promise<Playlist> { return this.db.Get('playlist', id); }
+  public LoadSong(id: string): Promise<Song> { return this.db.get('song', id); }
 }

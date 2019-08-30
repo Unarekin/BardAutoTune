@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SonglistService } from '../../shared/services';
+import { Song } from '../../interfaces';
 
 @Component({
   selector: 'app-browse',
@@ -18,8 +19,8 @@ export class BrowseComponent implements OnInit {
   }
 
   public LoadSongList() {
-    this.songList.List()
-      .then((songs: string[]) => {
+    this.songList.ListSongs()
+      .then((songs: Song[]) => {
         this.Songs = songs;
       })
       .catch(console.error)

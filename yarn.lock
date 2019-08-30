@@ -1685,6 +1685,11 @@ cacheable-request@^6.0.0:
     normalize-url "^4.1.0"
     responselike "^1.0.2"
 
+call-me-maybe@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/call-me-maybe/-/call-me-maybe-1.0.1.tgz#26d208ea89e37b5cbde60250a15f031c16a4d66b"
+  integrity sha1-JtII6onje1y95gJQoV8DHBak1ms=
+
 caller-callsite@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/caller-callsite/-/caller-callsite-2.0.0.tgz#847e0fce0a223750a9a027c54b33731ad3154134"
@@ -3522,6 +3527,13 @@ file-loader@4.1.0:
     loader-utils "^1.2.3"
     schema-utils "^2.0.0"
 
+file-path-filter@^2.2.1:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/file-path-filter/-/file-path-filter-2.2.2.tgz#69d0e1bf228d991262be5356ccf5e83d8eeff22d"
+  integrity sha512-U/97lJglcdx2EkP2fGMXgI36LG+IRX229lGaI5McQV39eh1/QdleEity0TlL9ZcPCXrUPsP1uptzyzE+VjU2hA==
+  dependencies:
+    glob-to-regexp "^0.4.1"
+
 fileset@^2.0.3:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/fileset/-/fileset-2.0.3.tgz#8e7548a96d3cc2327ee5e674168723a333bba2a0"
@@ -3882,6 +3894,11 @@ glob-parent@^5.0.0:
   integrity sha512-Z2RwiujPRGluePM6j699ktJYxmPpJKCfpGA13jz2hmFZC7gKetzrWvg5KN3+OsIFmydGyZ1AVwERCq1w/ZZwRg==
   dependencies:
     is-glob "^4.0.1"
+
+glob-to-regexp@^0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/glob-to-regexp/-/glob-to-regexp-0.4.1.tgz#c75297087c851b9a578bd217dd59a92f59fe546e"
+  integrity sha512-lkX1HJXwyMcprw/5YUZc2s7DrpAiHB21/V+E1rHUrVNokkvB6bqMzT0VfV6/86ZNabt1k14YOIaT7nDvOX3Iiw==
 
 glob@7.0.x:
   version "7.0.6"
@@ -7132,6 +7149,14 @@ readable-stream@~1.1.9:
     inherits "~2.0.1"
     isarray "0.0.1"
     string_decoder "~0.10.x"
+
+readdir-enhanced@^4.0.2:
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/readdir-enhanced/-/readdir-enhanced-4.0.2.tgz#55c18f157a8256ca10a505ad0a377f98713c535d"
+  integrity sha512-Xqc4vMvAMsGIDNlC1UP0a7YOiEmB57RfXdI0y7U+5G68urASPNQw45sxdPEdjiKGbfzCPQxIEHu2ytg9rfA3hw==
+  dependencies:
+    call-me-maybe "^1.0.1"
+    file-path-filter "^2.2.1"
 
 readdir-scoped-modules@^1.0.0:
   version "1.1.0"
