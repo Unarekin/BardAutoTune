@@ -1,6 +1,6 @@
 <mat-form-field>
   <mat-label>Tracks</mat-label>
-  <mat-select [(ngModel)]="song.SelectedTrack">
+  <mat-select [(ngModel)]="song.SelectedTrack" (selectionChange)="trackChanged($event)">
     <mat-option *ngFor="let track of song.Tracks; let i = index" [value]="i">{{track.Name}}</mat-option>
   </mat-select>
 </mat-form-field>

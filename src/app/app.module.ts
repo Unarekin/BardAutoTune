@@ -21,6 +21,7 @@ import { MaterialModule } from './material.module';
 
 import { FlexLayoutModule } from '@angular/flex-layout';
 
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import {
   HomeComponent,
@@ -29,7 +30,9 @@ import {
 } from './pages';
 
 import {
-  DatabaseService
+  DatabaseService,
+  SongplayerService,
+  SonglistService
 } from './shared/services';
 
 import { AppComponent } from './app.component';
@@ -58,6 +61,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     CoreModule,
     SharedModule,
     FlexLayoutModule,
+    FontAwesomeModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -67,7 +71,9 @@ export function HttpLoaderFactory(http: HttpClient) {
     })
   ],
   providers: [
-    DatabaseService
+    DatabaseService,
+    SonglistService,
+    SongplayerService
   ],
   bootstrap: [AppComponent]
 })

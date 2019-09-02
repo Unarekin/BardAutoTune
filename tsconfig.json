@@ -20,6 +20,8 @@
   },
   "include": [
     "main.ts",
+    "main-master.ts",
+    "main-worker.ts",
     "src/**/*"
   ],
   "exclude": [

@@ -1,8 +1,10 @@
 export interface Playlist {
+  _id: string,
+  _rev: string,
   Name: string,
   Created: number,
   Description: string,
-  Songs: Song[]
+  Songs: string[]
 };
 
 export interface Song {
@@ -11,6 +13,7 @@ export interface Song {
   Path: string,
   Name: string,
   Duration: number,
+  SelectedTrack: number,
   Tracks: Track[]
 };
 

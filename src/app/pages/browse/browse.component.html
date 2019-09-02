@@ -1,3 +1,18 @@
-<div class="content">
-  <app-songlist [songs]="Songs"></app-songlist>
+<div fxLayout="column">
+  <div class="content" fxLayout="row" fxLayoutAlign="center center">
+    <h1>Browse Songs</h1>
+  </div>
+  <div class="content">
+    <app-songlist></app-songlist>
+  </div>
+  <div class="content" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="10px">
+    <button mat-button mat-raised-button color="primary" (click)="AddClick()">
+      <fa-icon [icon]="Icons.HDD"></fa-icon>
+      Add
+    </button>
+    <button mat-button mat-raised-button color="primary" (click)="ScanClick()">
+      <fa-icon [icon]="Icons.Search"></fa-icon>
+      Scan
+    </button>
+  </div>
 </div>

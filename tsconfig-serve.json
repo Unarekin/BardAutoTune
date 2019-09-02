@@ -17,7 +17,9 @@
     ]
   },
   "include": [
-    "main.ts"
+    "main.ts",
+    "main-master.ts",
+    "main-worker.ts"
   ],
   "exclude": [
     "node_modules",

@@ -1,6 +1,10 @@
 import { Injectable, EventEmitter } from '@angular/core';
 // var PouchDB = require("pouchdb");
 import PouchDB from 'pouchdb-browser';
+import * as PouchFind from 'pouchdb-find';
+
+import { QueryResult } from '../../../interfaces';
+
 
 /**
  * Provides access to PouchDB based database storage.
@@ -10,6 +14,8 @@ export class DatabaseService {
   private databases: any = {};
 
   constructor() {
+    PouchDB.plugin((PouchFind as any).default);
+
     this.databases['song'] = new PouchDB('songs');
     this.databases['setting'] = new PouchDB('settings');
     this.databases['playlist'] = new PouchDB('playlists');
@@ -27,22 +33,32 @@ export class DatabaseService {
    * Takes a PouchDB response object and reduces it down to just a list
    * of returned documents, for easy consumption.
    */
-  private reduceDocs(res: any): any[] {
-    return res.rows.reduce((doc: any) => doc.doc);
+  private reduceDocs(res: any): QueryResult<any> {
+    if (!res || !res.rows || !res.rows.length)
+      return {Total: 0, Results: []};
+
+    // console.log("DB response: ", res.rows[0].doc);
+    return {
+      Total: res.total_rows,
+      Results: res.rows.map((doc: any) => doc.doc)
+    };
   }
 
   /**
    * Retrieves all documents
    */
-  public Fetch(type: string): Promise<any[]> {
+  public Fetch<T>(type: string, options: any = {}): Promise<QueryResult<T>> {
     return new Promise((resolve, reject) => {
       if (!this.databases[type]) {
         reject(new Error(`Unknown data type: '${type}.`));
       } else {
         let db = this.databases[type];
 
-        db.allDocs({include_docs: true})
-          .then(this.reduceDocs);
+        let parsedOptions = Object.assign({}, options, {include_docs: true});
+        db.allDocs(parsedOptions)
+          .then(this.reduceDocs)
+          .then(resolve)
+          ;
       }
     })
   }
@@ -50,9 +66,13 @@ export class DatabaseService {
   /**
    * Queries for documents
    */
-  public Query(type: string, query: any): Promise<any[]> {
+  public Query<T>(type: string, query: any): Promise<QueryResult<T>> {
     if (!this.databases[type])
       return Promise.reject(new Error(`Unknown data type: '${type}.`));
+
+    // let parsedQuery = Object.assign({}, {selector: {}}, query);
+
+    // console.log(type + " query: ", query);
 
     return this.databases[type].find(query)
               .then(this.reduceDocs);
@@ -78,9 +98,7 @@ export class DatabaseService {
 
     return this.databases[type]
             .put(document)
-            .then((res) => {
-              return this.databases[type].get(type, res.id);
-            })
+            .then((res) => this.Get(type, res.id))
             ;
   }
 

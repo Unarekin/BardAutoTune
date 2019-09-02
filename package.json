@@ -45,7 +45,6 @@
     "@angular/compiler": "8.2.2",
     "@angular/compiler-cli": "8.2.2",
     "@angular/core": "8.2.2",
-    "@angular/forms": "8.2.2",
     "@angular/language-service": "8.2.2",
     "@angular/platform-browser": "8.2.2",
     "@angular/platform-browser-dynamic": "8.2.2",
@@ -99,6 +98,10 @@
     "mkdirp": "^0.5.1",
     "pouchdb": "^7.1.1",
     "pouchdb-browser": "^7.1.1",
-    "readdir-enhanced": "^4.0.2"
+    "pouchdb-find": "^7.1.1",
+    "readdir-enhanced": "^4.0.2",
+    "service": "^0.1.4",
+    "throttled-queue": "^1.0.7",
+    "tone": "^13.8.25"
   }
 }

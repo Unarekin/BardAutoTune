@@ -16,6 +16,7 @@ export class IPCService extends EventEmitter {
 
     // Some IPC hooks.
     ipcRenderer.on('song-discovered', (event, song: Song) => {
+      // console.log("IPC Song discovered: ", song);
       this.emit('song-discovered', song);
     });
 

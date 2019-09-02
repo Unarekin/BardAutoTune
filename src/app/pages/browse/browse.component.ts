@@ -1,6 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SonglistService } from '../../shared/services';
-import { Song } from '../../interfaces';
+import { Song, Playlist } from '../../interfaces';
+
+import {
+  faSearch,
+  faHdd
+} from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-browse',
@@ -8,23 +14,42 @@ import { Song } from '../../interfaces';
   styleUrls: ['./browse.component.scss']
 })
 export class BrowseComponent implements OnInit {
-  public Songs: any[] = null;
+  // public Songs: any[] = null;
+  @Input() playlist: Playlist = null;
+
+  public Icons: any = {
+    Search: faSearch,
+    HDD: faHdd
+  };
 
   constructor(private songList: SonglistService) {
-    this.LoadSongList = this.LoadSongList.bind(this);
+    // Bindings
+    this.ScanClick = this.ScanClick.bind(this);
+    this.SongDiscovered = this.SongDiscovered.bind(this);
+
+    // Event listeners
+    this.songList.on('song-discovered', this.SongDiscovered);
+    this.songList.on('song-error', console.error);
   }
 
   ngOnInit() {
-    this.LoadSongList();
+    // this.LoadSongList();
   }
 
-  public LoadSongList() {
-    this.songList.ListSongs()
-      .then((songs: Song[]) => {
-        this.Songs = songs;
+  private SongDiscovered(song: Song) {
+    console.log("Discovered: ", song);
+    // this.snackBar.open(`Discovered: ${song.Name}`, 'Ok', {duration: 1000});
+  }
+
+  public AddClick() {
+    
+  }
+
+  public ScanClick() {
+    this.songList.ScanPath('./songs')
+      .then(() => {
+        console.log("Scanning complete.");
       })
-      .catch(console.error)
-      ;
   }
 
 }
