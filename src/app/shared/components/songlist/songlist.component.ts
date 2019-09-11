@@ -6,11 +6,12 @@ import {
   Input,
   ViewChild,
   SimpleChanges,
-  SimpleChange
+  SimpleChange,
+  KeyValueDiffers
 } from '@angular/core';
 import { MatTableDataSource, MatPaginator, MatSort, MatSnackBar } from '@angular/material';
 import { tap } from 'rxjs/operators';
-import { Playlist, Song, Track } from '../../../interfaces';
+import { Playlist, Song, Track, Note } from '../../../interfaces';
 
 import * as path from 'path';
 
@@ -32,10 +33,12 @@ export class SonglistComponent implements OnInit, OnChanges, AfterViewInit {
   // @Input() public songs: any[] = [];
   // @Input() public songs: string[] = [];
   @Input() public playlist: Playlist = null;
-  @Input() displayedColumns: string[] = ["Name", "Track", "Duration", "Actions"];
+  @Input() displayedColumns: string[] = ["Name", "Track", "Octave", "Duration", "Actions"];
   @ViewChild('table', { static: true}) private table: any = null;
   @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
   @ViewChild(MatSort, {static: true}) sort: MatSort;
+
+  private oldOctaveShiftHash: any = {};
 
 
   public Icons: any = {
@@ -49,9 +52,10 @@ export class SonglistComponent implements OnInit, OnChanges, AfterViewInit {
   private songPage: Song[] = [];
 
   private trackPlaying: Track = null;
+  // private differHash: any = {};
 
 
-  constructor(private songList: SonglistService, private songPlayer: SongplayerService) {
+  constructor(private songList: SonglistService, private songPlayer: SongplayerService, private differs: KeyValueDiffers) {
     // this.parseSongList = this.parseSongList.bind(this);
 
     // this.setupDataSource = this.setupDataSource.bind(this);
@@ -60,6 +64,7 @@ export class SonglistComponent implements OnInit, OnChanges, AfterViewInit {
     // this.isAnyPlaying = this.isAnyPlaying.bind(this);
     this.PlayClick = this.PlayClick.bind(this);
     this.StopClick = this.StopClick.bind(this);
+    this.octaveShift = this.octaveShift.bind(this);
   }
 
   ngOnInit() {
@@ -82,9 +87,20 @@ export class SonglistComponent implements OnInit, OnChanges, AfterViewInit {
       next: x => this.SongCount = x
     });
 
-    this.dataSource.SongPage.subscribe({
+    this.dataSource.Songs.subscribe({
       error: console.error,
-      next: x => this.songPage = x
+      next: (x) => {
+        this.songPage = x;
+      }
+    });
+
+    // this.songPlayer.on('note', (note: Note) => {
+    //   console.log("Note: ", note.Name);
+    // });
+
+    this.songPlayer.on('end', () => {
+      console.log("End");
+      this.StopClick();
     });
   }
 
@@ -128,9 +144,37 @@ export class SonglistComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
+  // ngDoCheck() {
+  //   // console.log("Song page: ", this.songPage);
+  //   this.songPage.forEach((song: Song) => {
+  //     if (this.differHash[song._id]) {
+  //       let changes = this.differHash[song._id].diff(song);
+  //       if (changes) {
+  //         // console.log("Changes:");
+  //         // changes.forEachChangedItem(r => console.log(r));
+  //         changes.forEachChangedItem((item) => {
+  //           if (item.key == "OctaveShift" &&
+  //               item.previousValue != null &&
+  //               item.currentValue != null &&
+  //               item.previousValue != item.currentValue
+  //               ) {
+  //             console.log("OctaveShift: ", item.previousValue, "-", item.currentValue);
+  //             // this.octaveShift(song, item.previousValue);
+  //           }
+  //         });
+  //         // changes.forEachChangedItem(r => console.log('changed ', r.currentValue));
+  //         // changes.forEachAddedItem(r => console.log('added ', r.currentValue));
+  //         // changes.forEachRemovedItem(r => console.log('removed ', r.currentValue));
+  //       }
+  //     }
+  //   });
+  // }
 
-  public PlayClick(track: Track) {
-    this.songPlayer.PlayPreview(track);
+
+  public PlayClick(song: Song) {
+    // console.log("Playing: ", song);
+    let track = song.Tracks[song.SelectedTrack];
+    this.songPlayer.PlayPreview(song, track);
     this.trackPlaying = track;
   }
 
@@ -150,14 +194,19 @@ export class SonglistComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   public trackSelected($event) {
-    console.log("Track selected:", $event);
+    // console.log("Track selected:", $event);
     // $event.song.SelectedTrack = $event.index;
-    console.log(this.songPage);
+    // console.log(this.songPage);
+    // console.log("Selected song: ", $event.song._id);
+
     let song = this.songPage.find((item: Song) => item._id = $event.song._id);
-    console.log(song);
+
+    // console.log(song);
     if (song) {
       // Found
-      song.SelectedTrack = $event.value;
+      song.SelectedTrack = $event.index;
+      // console.log($event);
+      // console.log("Track selected: ", song);
     } else {
       console.error("Unable to find song: " + $event.song._id);
     }
@@ -168,11 +217,16 @@ export class SonglistComponent implements OnInit, OnChanges, AfterViewInit {
 
   }
 
-  public isTrackPlaying(track: Track): boolean { return this.trackPlaying == track; }
+  public isTrackPlaying(song: Song): boolean {
+    let index = song.Tracks.findIndex((elem: Track) => elem == this.trackPlaying);
+    return index != -1;
+    // return this.trackPlaying == track;
+  }
   // public isAnyPlaying(): boolean {
   //   console.log("Playing: ", this.trackPlaying);
   //   return this.trackPlaying != null;
   // }
+
   public isPlayDisabled(song: Song): boolean {
     // console.log("isPlayDisabled: ", song);
     if (song.SelectedTrack == -1)
@@ -181,5 +235,27 @@ export class SonglistComponent implements OnInit, OnChanges, AfterViewInit {
     //   return true;
 
     return false;
+  }
+
+  private octaveShift(song: Song) {
+    let previousOctave = 0;
+    if (this.oldOctaveShiftHash[song._id])
+      previousOctave = this.oldOctaveShiftHash[song._id];
+
+    let shiftAmount = song.OctaveShift - previousOctave;
+    this.oldOctaveShiftHash[song._id] = song.OctaveShift;
+    console.log("Octave shift: ", song.Name, " ", previousOctave, "-", song.OctaveShift, "(" + shiftAmount + ")");
+
+    song.Tracks.forEach((track: Track) => {
+      console.log("Shifting ", track.Name);
+      track.Notes.forEach((note: Note) => {
+        let origOctave = note.Octave;
+        let newOctave = note.Octave + shiftAmount;
+
+        note.Octave = newOctave;
+        note.Name = note.Pitch + newOctave;
+      });
+    });
+    console.log("Shifted.");
   }
 }

@@ -26,13 +26,15 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   HomeComponent,
   PlaylistComponent,
-  BrowseComponent
+  BrowseComponent,
+  FreestyleComponent
 } from './pages';
 
 import {
   DatabaseService,
   SongplayerService,
-  SonglistService
+  SonglistService,
+  FreestyleService
 } from './shared/services';
 
 import { AppComponent } from './app.component';
@@ -48,7 +50,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     AppComponent,
     HomeComponent,
     PlaylistComponent,
-    BrowseComponent
+    BrowseComponent,
+    FreestyleComponent
   ],
   imports: [
     BrowserModule,
@@ -73,7 +76,8 @@ export function HttpLoaderFactory(http: HttpClient) {
   providers: [
     DatabaseService,
     SonglistService,
-    SongplayerService
+    SongplayerService,
+    FreestyleService
   ],
   bootstrap: [AppComponent]
 })

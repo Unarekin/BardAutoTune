@@ -1,0 +1,8 @@
+--slow 0
+--timeout 0
+--require source-map-support/register
+--require ts-node/register
+--full-trace
+--reporter mochawesome
+--reporter-options reportFilename=backend,reportTitle=VOYHS\ Backend\ Tests,reportPageTitle=VOYHS\ Backend\ Tests,reportDir=mochawesome-report/backend
+test/**.ts

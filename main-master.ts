@@ -210,6 +210,9 @@ cluster.on('disconnect', (worker) => {
 
       // Remove from list of workers.
       delete taskQueue.workers[worker.id];
+
+      // Start up a new one.
+      cluster.fork();
     }
   }
 });

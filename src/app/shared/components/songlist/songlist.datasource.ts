@@ -7,7 +7,7 @@ import { merge } from 'rxjs/operators';
 import { Song, Playlist, QueryResult } from '../../../interfaces';
 
 export class SongDataSource extends DataSource<Song> {
-  private songsSubject = new BehaviorSubject<Song>([]);
+  private songsSubject = new BehaviorSubject<Song[]>([]);
   private loadingSubject = new BehaviorSubject<boolean>(false);
   private totalSubject = new BehaviorSubject<number>(0);
   private songPage = new BehaviorSubject<Song[]>([]);
@@ -15,7 +15,7 @@ export class SongDataSource extends DataSource<Song> {
   // public loading: Observable<boolean> = this.loadingSubject.asObservable();
   public get Loading(): Observable<boolean> { return this.loadingSubject.asObservable(); }
   public get TotalCount(): Observable<number> { return this.totalSubject.asObservable(); }
-  public get Songs(): Observable<Song> { return this.songsSubject.asObservable(); }
+  public get Songs(): Observable<Song[]> { return this.songsSubject.asObservable(); }
   public get SongPage(): Observable<Song[]> { return this.songPage.asObservable(); }
 
 

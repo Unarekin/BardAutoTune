@@ -11,7 +11,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { PageNotFoundComponent } from './components/';
 import { WebviewDirective } from './directives/';
 
-
 import { DurationFormatPipe } from './pipes/duration/duration.pipe';
 
 
@@ -19,7 +18,8 @@ import {
   MenuComponent,
   TrackSelectorComponent,
   SongComponent,
-  SonglistComponent
+  SonglistComponent,
+  PianorollComponent
 } from './components';
 
 
@@ -31,7 +31,8 @@ import {
     DurationFormatPipe,
     TrackSelectorComponent,
     SongComponent,
-    SonglistComponent
+    SonglistComponent,
+    PianorollComponent,
   ],
   imports: [
     CommonModule,
@@ -48,6 +49,7 @@ import {
     TrackSelectorComponent,
     SongComponent,
     SonglistComponent,
+    PianorollComponent,
     DurationFormatPipe
   ]
 })

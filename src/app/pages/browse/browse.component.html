@@ -1,9 +1,26 @@
-<div fxLayout="column">
+<div fxLayout="column" class="container">
   <div class="content" fxLayout="row" fxLayoutAlign="center center">
     <h1>Browse Songs</h1>
   </div>
-  <div class="content">
+  <div class="content" fxFlex fxLayout="column" style="overflow:auto">
     <app-songlist></app-songlist>
+  </div>
+  <div *ngIf="previewPlaying" class="PreviewBox content">
+    <div fxLayout="row">
+      <div fxLayout="column" fxFlex>
+        <div fxLayout="row" fxLayoutAlign="space-between">
+          <div>{{previewSong.Name}}</div>
+          <div>{{PreviewTime}} / {{PreviewDuration}}</div>
+        </div>
+        <!-- <app-pianoroll [song]="previewSong" [scrollTime]="ScrollTime"></app-pianoroll> -->
+        <mat-progress-bar mode="determinate" [value]="PreviewProgress"></mat-progress-bar>
+      </div>
+      <div>
+        <button mat-button mat-icon-button (click)="StopClick()">
+          <fa-icon [icon]="Icons.Stop"></fa-icon>
+        </button>
+      </div>
+    </div>
   </div>
   <div class="content" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="10px">
     <button mat-button mat-raised-button color="primary" (click)="AddClick()">

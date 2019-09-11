@@ -13,7 +13,11 @@ export interface Song {
   Path: string,
   Name: string,
   Duration: number,
+  PPQ: number,
   SelectedTrack: number,
+  OctaveShift: number,
+  TimeSignatures: TimeSignature[],
+  Tempos: Tempo[],
   Tracks: Track[]
 };
 
@@ -41,3 +45,19 @@ export interface Instrument {
   Name: string,
   Percussion: boolean
 };
+
+export interface TimeSignature {
+  Ticks: number,
+  Time: number,
+  Duration: number,
+  DurationTicks: number,
+  Signature: number[]
+}
+
+export interface Tempo {
+  BPM: number,
+  Ticks: number,
+  Time: number,
+  Duration: number,
+  DurationTicks: number
+}

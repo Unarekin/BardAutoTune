@@ -5,7 +5,8 @@ import { PageNotFoundComponent } from './shared/components';
 import {
   HomeComponent,
   PlaylistComponent,
-  BrowseComponent
+  BrowseComponent,
+  FreestyleComponent
 } from './pages';
 
 const routes: Routes = [
@@ -24,6 +25,10 @@ const routes: Routes = [
   {
     path: 'browse',
     component: BrowseComponent
+  },
+  {
+    path: 'freestyle',
+    component: FreestyleComponent
   },
   {
     path: '**',

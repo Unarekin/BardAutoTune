@@ -164,6 +164,8 @@ cluster.on('disconnect', function (worker) {
                 assignOrQueueTask(task);
             // Remove from list of workers.
             delete taskQueue.workers[worker.id];
+            // Start up a new one.
+            cluster.fork();
         }
     }
 });

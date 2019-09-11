@@ -13,7 +13,9 @@ import {
   Song,
   Track,
   Note,
-  Instrument
+  Instrument,
+  TimeSignature,
+  Tempo
 } from './src/app/interfaces/song.interface';
 
 
@@ -24,25 +26,92 @@ function loadSong(dir: string): Promise<Song> {
       if (err) {
         reject(err);
       } else {
+        console.log("Loading: ", dir);
         let parsed = new Midi(data)
         // Coerce @tonejs/midi formatted midi into our internal interface
 
         // _id and _rev are handled by the renderer process, not here.
         // They originate from the PoucHDB instance, but are included
         // on the interface for type checking.
+        // console.log("Duration: ", parsed.duration);
 
-        let name = parsed.header.name;
-        if (!name || name == 'untitled')
-          name = path.basename(dir, path.extname(dir));
+        let tempos: Tempo[] = parsed.header.tempos.map((tempo: any, index: number): Tempo => {
+          let time: number = 0;
+          let duration: number = 0;
+          let durationTicks: number = 0;
+
+          durationTicks = (parsed.header.tempos.length-1 > index) ? parsed.header.tempos[index+1].ticks : parsed.duration;
+          duration = (60000 / (tempo.bpm * parsed.header.ppq)) * durationTicks;
+          time = (60000 / (tempo.bpm * parsed.header.ppq)) * tempo.ticks;
+
+          return {
+            BPM: tempo.bpm,
+            Ticks: tempo.ticks,
+            Time: time,
+            Duration: duration,
+            DurationTicks: durationTicks
+          }
+        });
+
+        // Default signature, if none specified.  4/4 time, the full length of the song.
+        let defaultSignature: TimeSignature = {
+          Ticks: 0,
+          Time: 0,
+          Duration: parsed.duration,
+          DurationTicks: parsed.durationTicks,
+          Signature: [4,4]
+        };
+
+        // Default tempo, if none specified.  120 BPM, full length of hte song.
+        let defaultTempo: Tempo = {
+          BPM: 120,
+          Ticks: 0,
+          Time: 0,
+          Duration: parsed.duration,
+          DurationTicks: parsed.durationTicks
+        };
 
         let midi: Song = {
           _id: '',
           _rev: '',
-          Name: name,
+          Name: path.basename(dir, path.extname(dir)),
           Path: path.resolve(dir),
-          Duration: parsed.durationTicks,
+          Duration: parsed.duration,
           SelectedTrack: -1,
-          Tracks: parsed.tracks.map((track: any) => {
+          PPQ: parsed.header.ppq,
+          Tempos: tempos.length == 0 ? [defaultTempo] : tempos,
+          OctaveShift: 0,
+          TimeSignatures: (parsed.header.timeSignatures.length == 0) ? [defaultSignature] : parsed.header.timeSignatures.map((elem: any, index: number): TimeSignature => {
+            let time: number = 0;
+            let duration: number = 0;
+            let durationTicks: number = 0;
+
+
+            // Find current tempo.
+            let currentTempo = tempos.filter((tempo: Tempo) => tempo.Ticks <= elem.ticks).sort((a: Tempo, b: Tempo) => b.Ticks - a.Ticks)[0];
+            if (!currentTempo) {
+              currentTempo = {
+                BPM: 120,
+                Ticks: 0,
+                Time: 0,
+                Duration: parsed.duration,
+                DurationTicks: parsed.durationTicks
+              };
+            }
+            // durationTicks = (parsed.header.timeSignatures.length >= index+1) ? parsed.header.timeSignatures[index+1].ticks : parsed.duration;
+            durationTicks = (parsed.header.timeSignatures.length-1 > index) ? parsed.header.timeSignatures[index+1].ticks : parsed.duration;
+            duration = (60000  / (currentTempo.BPM * parsed.header.ppq)) * durationTicks;
+            time = (60000 / ( currentTempo.BPM * parsed.header.ppq)) * elem.ticks;
+
+            return {
+              Ticks: elem.ticks,
+              Time: time,
+              Duration: duration,
+              DurationTicks: durationTicks,
+              Signature: elem.timeSignature
+            };
+          }),
+          Tracks: parsed.tracks.filter((track: any) => track.notes.length).map((track: any) => {
             return {
               Name: (track.name ? track.name : track.instrument.name),
               Channel: track.channel,
